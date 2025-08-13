@@ -13,7 +13,6 @@ echo $nome, "você nasceu em:" , $data_nascimento, "\n";
 <?php
 /*atividade 2 - Dado uma frase “Programação em php.” transformá‐la em maiúscula, imprima,
 depois em minúscula e imprima de novo.*/
-echo 
 
 
 
