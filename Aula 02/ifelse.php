@@ -1,21 +1,67 @@
 <?php
+// Programação ifElse para verificar aprovação/reprovação
+// Notas 7 ou maiores = Aprovado
+// Notas menores que 7 = Reprovado
+// caso o aluno tenha o nome "enzo enrico" , ele sera aprovado independente da media e presença. crie uma variavel $nome
 
-$nome = "Enso Enrico";
+// Variáveis do aluno
+$nome = "enzo enrico"; // Você pode alterar este nome para testar diferentes casos
+$nota = 5.5; // Você pode alterar esta nota para testar diferentes casos
 
-echo" Boa tarde!";
-$nota1 = readline(prompt: "Digite a primeira nota: "); 
-$nota2 = readline(prompt: "Digite a segunda nota: ");
-$presença = readline(prompt: "Digite a presença (0 a 100): ");
-$media = ($nota1 + $nota2) / 2;
-
-if ($media >= 7 && $presença >= 75) {
-    echo "Parabéns, $nome! Você foi aprovado com média $media e presença $presença%.\n";
-} elseif ($media < 7 && $presença >= 75) {
-    echo "Infelizmente, $nome, você não foi aprovado. Sua média foi $media e sua presença foi $presença%.\n";
-} elseif ($presença < 75) {
-    echo "Infelizmente, $nome, você não foi aprovado por falta. Sua presença foi apenas $presença%.\n";
-} elseif ($presenÃ§a < 0 || $presença > 100) {
-    echo "Erro: A presença deve estar entre 0 e 100.\n";
+// Verificação de aprovação/reprovação
+if (strtolower($nome) === "enzo enrico") {
+    echo "Aluno: $nome\n";
+    echo "Status: APROVADO (por nome especial)\n";
+    echo "Nota: $nota\n";
+    echo "Parabéns! Você foi aprovado independentemente da sua nota.\n";
+} elseif ($nota >= 7) {
+    echo "Aluno: $nome\n";
+    echo "Nota: $nota\n";
+    echo "Status: APROVADO\n";
+    echo "Parabéns! Você foi aprovado com nota $nota.\n";
 } else {
-    echo "Erro desconhecido.\n";
+    echo "Aluno: $nome\n";
+    echo "Nota: $nota\n";
+    echo "Status: REPROVADO\n";
+    echo "Infelizmente você foi reprovado. Sua nota foi $nota, precisando de pelo menos 7 para ser aprovado.\n";
 }
+
+// Teste com diferentes valores
+echo "\n--- Testes ---\n";
+
+// Teste 1: Aluno comum aprovado
+$nome1 = "João Silva";
+$nota1 = 8.5;
+echo "Teste 1 - Aluno: $nome1, Nota: $nota1 - ";
+if (strtolower($nome1) === "enzo enrico") {
+    echo "APROVADO (especial)\n";
+} elseif ($nota1 >= 7) {
+    echo "APROVADO\n";
+} else {
+    echo "REPROVADO\n";
+}
+
+// Teste 2: Aluno comum reprovado
+$nome2 = "Maria Santos";
+$nota2 = 6.0;
+echo "Teste 2 - Aluno: $nome2, Nota: $nota2 - ";
+if (strtolower($nome2) === "enzo enrico") {
+    echo "APROVADO (especial)\n";
+} elseif ($nota2 >= 7) {
+    echo "APROVADO\n";
+} else {
+    echo "REPROVADO\n";
+}
+
+// Teste 3: Aluno especial com nota baixa
+$nome3 = "Enzo Enrico";
+$nota3 = 4.0;
+echo "Teste 3 - Aluno: $nome3, Nota: $nota3 - ";
+if (strtolower($nome3) === "enzo enrico") {
+    echo "APROVADO (especial)\n";
+} elseif ($nota3 >= 7) {
+    echo "APROVADO\n";
+} else {
+    echo "REPROVADO\n";
+}
+?>
