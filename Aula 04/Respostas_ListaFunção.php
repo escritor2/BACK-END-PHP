@@ -100,5 +100,6 @@ function calcularValor($marca, $ano, $Ndonos) {
         default:
             $precoBase = 5000; 
     }
+}
     ?>
     
