@@ -1,6 +1,4 @@
 <?php
-// Menu Interativo Simples em PHP
-// Três opções: Olá, Data Atual e Sair
 
 function exibirMenu() {
     echo "\n=== MENU INTERATIVO ===\n";
@@ -11,8 +9,8 @@ function exibirMenu() {
     echo "Escolha uma opção: ";
 }
 
-// Loop principal do menu
-while (true) {
+
+for ($i = 0; $i < 5; $i++) { 
     exibirMenu();
     $opcao = trim(fgets(STDIN));
     
@@ -35,7 +33,5 @@ while (true) {
             echo "\nOpção inválida! Por favor, escolha 1, 2 ou 3.\n";
     }
     
-    echo "\nPressione ENTER para continuar...";
-    fgets(STDIN);
 }
 ?>
