@@ -1,4 +1,4 @@
-php<?
+<?php
 
 // modificadores de acesso
 // eistem 3tipos public private e protect
@@ -19,12 +19,11 @@ namespace Aula_9;
 //Interfaces: é um recurso no qual garante que obrigatoriamente a classe tenho que construir algum metodo previamente determinado. Funciona como uma promessa ou contrato.
 //Exemplo: configuramos uma interface "pagamento" que faz com que qualquer classe que a implante, tenha obrigatoriamente construir o metodo "pagar".
 
-interface pagamento {  // interface de contrato de pagaento
+interface Pagamento {  // interface de contrato de pagamento
     public function pagar($valor);
 }
 
-
-class CartaoDeCredito implements pagamento {
+class CartaoDeCredito implements Pagamento {
     public function pagar($valor) {
         echo "pagamento realizado com cartao de credito, valor: $valor\n";
     }
@@ -51,14 +50,21 @@ class DinheiroEspecie implements Pagamento {
 
 $cred = new CartaoDeCredito(); //criando objetos
 
-echo"testando cartao de credit para pagamento: ". $cred->pagar( 250);
+echo "testando cartao de credito para pagamento: ";
+$cred->pagar(250);
 
 //neste exemplo criamos um objeto chamado "$cred" para a classe"CartaoDeCredito" e depois chamamos o metodo "pagar" para este objeto, passando R$
 // 250 como parametro. 
 
 //crie objetos para as classes "pix" e "DinheiroEspecie"
 
+$pix = new PIX();
+echo "testando pix para pagamento: ";
+$pix->pagar(150);
 
+$dinheiro = new DinheiroEspecie();
+echo "testando dinheiro em espécie para pagamento: ";
+$dinheiro->pagar(100);
 
 
 //criando uma interface simples
@@ -68,56 +74,6 @@ echo"testando cartao de credit para pagamento: ". $cred->pagar( 250);
 
 // Area quadrado = 1 * 1
 // Area circulo = π * r²
-
-<?php
-
-interface Forma {
-    public function CalcularArea();
-}
-
-class Quadrado implements Forma {
-    private $lado;
-
-    public function __construct($lado) {
-        $this->lado = $lado;
-    }
-
-    public function CalcularArea() {
-        return $this->lado * $this->lado;
-    }
-}
-
-class Circulo implements Forma {
-    private $raio;
-
-    public function __construct($raio) {
-        $this->raio = $raio;
-    }
-
-    public function CalcularArea() {
-        return pi() * pow($this->raio, 2);
-    }
-}
-
-// Testando as classes
-$quadrado = new Quadrado(1);
-echo "Área do quadrado: " . $quadrado->CalcularArea() . "\n";
-
-$circulo = new Circulo(2);
-echo "Área do círculo: " . $circulo->CalcularArea() . "\n";
-
-
-//crie a classe pentagono, e calcule a area do mesmo.
-
-
-
-
-
-//crie a classe hexagono, e calcule a area do mesmo 
-
-
-
-
 
 interface Forma {
     public function CalcularArea();
@@ -171,7 +127,12 @@ class Hexagono implements Forma {
     }
 }
 
-// Testando
+// Testando as classes
+$quadrado = new Quadrado(1);
+echo "Área do quadrado: " . $quadrado->CalcularArea() . "\n";
+
+$circulo = new Circulo(2);
+echo "Área do círculo: " . $circulo->CalcularArea() . "\n";
 
 $pentagono = new Pentagono(3);
 echo "Área do pentágono: " . $pentagono->CalcularArea() . "\n";

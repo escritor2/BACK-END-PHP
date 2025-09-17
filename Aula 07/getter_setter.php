@@ -12,7 +12,7 @@ class pessoa {
         $this->setNome($nome);
         $this->setCpf($cpf);
         $this->setTelefone($telefone);
-        $this->setidade($idade);
+        $this->setIdade($idade);
         $this->email = $email;
         $this->senha = $senha;
     }
@@ -44,7 +44,11 @@ class pessoa {
     public function getIdade() {
         return $this->idade;
     }
-}
+
+        public function exibirInfo() {
+            return "nome do aluno: " . $this->getNome() . "\nCPF: " . $this->getCpf() . "\nTelefone: " . $this->getTelefone() . "\nIdade: " . $this->getIdade() . "\nEmail: " . $this->email . "\nSenha: " . $this->senha;
+        }
+    }
 
 $aluno1 = new pessoa("GaBrIeL FeRrEiRa Da SiLvA", "123.456;789.10", "(19)9999-1234", "-25", "teste@teste.com", "teste123");
 echo $aluno1->getNome();
