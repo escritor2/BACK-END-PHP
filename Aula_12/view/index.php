@@ -1,6 +1,7 @@
 <?php
 session_start();
-
+require_once __DIR__ . '/../controller/BebidaController.php';
+$controller = new BebidaController();
 class Bebida {
     private $nome;
     private $categoria;
@@ -27,10 +28,8 @@ if (!isset($_SESSION['bebidas'])) {
     $_SESSION['bebidas'] = [];
 }
 
-$lista = $_SESSION['bebidas'];
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $acao = $_POST['acao'] ?? '';
+    $acao = $_GET['act'] ?? '';
 
     if ($acao === 'salvar') {
         $nome = trim($_POST['nome'] ?? '');
@@ -40,8 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $qtde = $_POST['qtde'] ?? 0;
 
         if ($nome && $categoria && $volume && is_numeric($valor) && is_numeric($qtde)) {
-            $novaBebida = new Bebida($nome, $categoria, $volume, $valor, $qtde);
-            $_SESSION['bebidas'][] = $novaBebida;
+            $controller->criar($nome, $categoria, $volume, $valor, $qtde);
             header('Location: ' . $_SERVER['PHP_SELF']);
             exit;
         }
@@ -54,9 +52,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit;
     }
+    elseif ($acao === 'editar') {
+        $nomeParaEditar = $_POST['nomeOriginal'] ?? ''; 
+
+        $novoNome = trim($_POST['novoNome'] ?? '');
+        $novaCategoria = $_POST['novaCategoria'] ?? '';
+        $novoVolume = trim($_POST['novoVolume'] ?? '');
+        $novoValor = $_POST['novoValor'] ?? 0;
+        $novaQtde = $_POST['novaQtde'] ?? 0;
+
+       
+        if ($novoNome && $novaCategoria && is_numeric($novoValor) && is_numeric($novaQtde)) {
+            foreach ($_SESSION['bebidas'] as $index => $bebida) {
+                if ($bebida->getNome() === $nomeParaEditar) {   
+                    $_SESSION['bebidas'][$index] = new Bebida(
+                        $novoNome,     
+                        $novaCategoria,  
+                        $novoVolume,  
+                        $novoValor,  
+                        $novaQtde    
+                    );
+                    break; 
+                }
+            }
+        }
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+
 }
 
-$lista = $_SESSION['bebidas'];
+
+$lista = $controller->ler();
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -65,325 +92,139 @@ $lista = $_SESSION['bebidas'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário de bebidas</title>
     <!-- <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 300;
-        }
-
-        .header hr {
-            border: none;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.3);
-            margin: 20px auto;
-            width: 80%;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .section {
-            margin-bottom: 40px;
-            padding: 25px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #3498db;
-        }
-
-        .section h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-weight: 500;
-            font-size: 1.5em;
-        }
-
-        .form-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        form {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        input, select, button {
-            padding: 12px 15px;
-            border: 2px solid #e1e8ed;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-
-        input[type="text"],
-        input[type="number"],
-        select {
-            background: #fff;
-        }
-
-        button {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
-        }
-
-        .btn-delete {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-        }
-
-        .btn-delete:hover {
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
-        }
-
-        .table-container {
-            overflow-x: auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-
-        th {
-            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9em;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #ecf0f1;
-        }
-
-        tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        table form {
-            background: none;
-            box-shadow: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        table button {
-            padding: 8px 15px;
-            font-size: 0.85em;
-        }
-
-        .empty-message {
-            text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-            font-style: italic;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                border-radius: 10px;
-            }
-            
-            .content {
-                padding: 15px;
-            }
-            
-            .form-group {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            th, td {
-                padding: 10px 8px;
-                font-size: 0.9em;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            
-            .header {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 1.7em;
-            }
-            
-            .section {
-                padding: 15px;
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .section, .table-container, .empty-message {
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .valor {
-            color: #27ae60;
-            font-weight: 600;
-        }
-
-        .quantidade {
-            font-weight: 600;
-            color: #2980b9;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        h1, h2 { margin-bottom: 15px; }
+        .form-group { display: flex; gap: 10px; margin-bottom: 10px; }
+        input, select, button { padding: 10px; border-radius: 4px; border: 1px solid #ccc; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button.btn-delete { background-color: #dc3545; }
+        button.btn-edit { background-color: #ffc107; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
     </style> -->
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Gerenciamento de Bebidas</h1>
-            <hr>
-        </div>
-        
-        <div class="content">
-            <div class="section">
-                <h2>Cadastrar Nova Bebida</h2>
-                <form method="POST">
-                    <input type="hidden" name="acao" value="salvar">
-                    <div class="form-group">
-                        <input type="text" name="nome" placeholder="Nome da bebida:" required>
-                        <select name="categoria" required>
-                            <option value="">Selecione a categoria</option>
-                            <option value="Refrigerante">Refrigerante</option>
-                            <option value="Cerveja">Cerveja</option>
-                            <option value="Vinho">Vinho</option>
-                            <option value="Destilado">Destilado</option>
-                            <option value="Água">Água</option>
-                            <option value="Suco">Suco</option>
-                            <option value="Energético">Energético</option>
-                        </select>
-                        <input type="text" name="volume" placeholder="Volume (ex: 300ml):" required>
-                        <input type="number" name="valor" step="0.01" placeholder="Valor em Reais (R$):" required>
-                        <input type="number" name="qtde" placeholder="Quantidade em estoque:" required>
-                        <button type="submit">Cadastrar Bebida</button>
-                    </div>
-                </form>
-            </div>
 
-            <div class="section">
-                <h2>Bebidas Cadastradas</h2>
-                <?php if (!empty($lista)): ?>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Categoria</th>
-                                    <th>Volume</th>
-                                    <th>Valor (R$)</th>
-                                    <th>Quantidade</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($lista as $bebida): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($bebida->getNome()); ?></td>
-                                    <td><?php echo htmlspecialchars($bebida->getCategoria()); ?></td>
-                                    <td><?php echo htmlspecialchars($bebida->getVolume()); ?></td>
-                                    <td class="valor">R$ <?php echo number_format($bebida->getValor(), 2, ',', '.'); ?></td>
-                                    <td class="quantidade"><?php echo htmlspecialchars($bebida->getQtde()); ?></td>
-                                    <td>
-                                        <form method="POST" style="display: inline;">
-                                            <input type="hidden" name="acao" value="deletar">
-                                            <input type="hidden" name="nome" value="<?php echo htmlspecialchars($bebida->getNome()); ?>">
-                                            <button type="submit" class="btn-delete" onclick="return confirm('Tem certeza que deseja excluir esta bebida?')">Excluir</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php else: ?>
-                    <div class="empty-message">
-                        <p>Nenhuma bebida cadastrada no momento.</p>
-                    </div>
-                <?php endif; ?>
+<div class="container">
+    <header>
+        <h1>Gerenciamento de Bebidas</h1>
+    </header>
+
+    <div class="section" id="section-adicionar">
+        <h2>Adicionar Nova Bebida</h2>
+        <form method="POST" action="?act=salvar">
+            <input type="hidden" name="acao" value="salvar">
+            <div class="form-group">
+                <input type="text" name="nome" placeholder="Nome da Bebida" required>
+                <select name="categoria" required>
+                    <option value="">Selecione Categoria</option>
+                    <option value="Alcoólica">Alcoólica</option>
+                    <option value="Não Alcoólica">Não Alcoólica</option>
+                </select>
+                <input type="text" name="volume" placeholder="Volume (ex: 350ml)" required>
+                <input type="number" step="0.01" name="valor" placeholder="Valor" required>
+                <input type="number" name="qtde" placeholder="Quantidade" required>
             </div>
-        </div>
+            <button type="submit">Salvar Nova Bebida</button>
+        </form>
     </div>
+
+    <div class="section" id="section-editar" style="display: none;">
+        <h2>Editar Bebida</h2>
+        <form method="POST" id="formEdicao">
+            <input type="hidden" name="acao" value="editar">
+            <input type="hidden" name="nomeOriginal" id="editNomeOriginal">
+
+            <div class="form-group">
+                <input type="text" name="novoNome" id="editNovoNome" placeholder="Novo Nome da Bebida" required>
+                <select name="novaCategoria" id="editNovaCategoria" required>
+                    <option value="">Selecione Categoria</option>
+                    <option value="Alcoólica">Alcoólica</option>
+                    <option value="Não Alcoólica">Não Alcoólica</option>
+                </select>
+                <input type="text" name="novoVolume" id="editNovoVolume" placeholder="Novo Volume (ex: 350ml)" required>
+                <input type="number" step="0.01" name="novoValor" id="editNovoValor" placeholder="Novo Valor" required>
+                <input type="number" name="novaQtde" id="editNovaQtde" placeholder="Nova Quantidade" required>
+            </div>
+            <button type="submit">Salvar Alterações</button>
+            <button type="button" onclick="cancelarEdicao()">Cancelar</button>
+        </form>
+    </div>
+    
+    <div class="section">
+        <h2>Lista de Bebidas Cadastradas</h2>
+        <?php if (empty($lista)): ?>
+            <p>Nenhuma bebida cadastrada ainda.</p>
+        <?php else: ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Categoria</th>
+                        <th>Volume</th>
+                        <th>Valor</th>
+                        <th>Quantidade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($lista as $bebida): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($bebida->getNome()); ?></td>
+                            <td><?php echo htmlspecialchars($bebida->getCategoria()); ?></td>
+                            <td><?php echo htmlspecialchars($bebida->getVolume()); ?></td>
+                            <td>R$ <?php echo htmlspecialchars(number_format($bebida->getValor(), 2, ',', '.')); ?></td>
+                            <td><?php echo htmlspecialchars($bebida->getQtde()); ?></td>
+                            <td>
+                                <form method="POST" style="display:inline-block;">
+                                    <input type="hidden" name="acao" value="deletar">
+                                    <input type="hidden" name="nome" value="<?php echo htmlspecialchars($bebida->getNome()); ?>">
+                                    <button type="submit" class="btn-delete">Deletar</button>
+                                </form>
+
+                            
+                                <button 
+                                    type="button" 
+                                    class="btn-edit" 
+                                    onclick="preencherFormEdicao('<?php echo htmlspecialchars($bebida->getNome()); ?>',
+                                                                 '<?php echo htmlspecialchars($bebida->getCategoria()); ?>',
+                                                                 '<?php echo htmlspecialchars($bebida->getVolume()); ?>',
+                                                                 '<?php echo htmlspecialchars($bebida->getValor()); ?>',
+                                                                 '<?php echo htmlspecialchars($bebida->getQtde()); ?>')">
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </div>
+</div>
+
+<script>
+    function preencherFormEdicao(nome, categoria, volume, valor, qtde) {
+        document.getElementById('editNomeOriginal').value = nome;
+        document.getElementById('editNovoNome').value = nome;
+        document.getElementById('editNovaCategoria').value = categoria;
+        document.getElementById('editNovoVolume').value = volume;
+        document.getElementById('editNovoValor').value = valor;
+        document.getElementById('editNovaQtde').value = qtde;
+        
+  
+        document.getElementById('section-adicionar').style.display = 'none';
+        document.getElementById('section-editar').style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+    function cancelarEdicao() {
+        document.getElementById('section-adicionar').style.display = 'block';
+        document.getElementById('section-editar').style.display = 'none';
+    }
+</script>
+
 </body>
 </html>
